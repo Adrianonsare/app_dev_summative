@@ -1,5 +1,6 @@
 def read_api():
-    ''' takes api urls, reads into json'''
+    ''' takes api urls, reads into json format,
+     generates dataframes and formats colimns to fit into format of original dataset'''
     
     #Solar
     import requests

@@ -80,23 +80,10 @@ regressor.fit(X_train, y_train)
 
 #Wind
 regressor1.fit(X1_train, y1_train)
-# y_pred1 = regressor1.predict(X1_test)
 
-# Saving model to disk
-# joblib.dump(regressor, "regressor_solar.pkl")
-# joblib.dump(regressor1, "regressor_wind.pkl")
-
+#dump regressor in current working directory to permit call by dash app
 pickle.dump(regressor, open('model_solar.pkl','wb'))
 pickle.dump(regressor1, open('model_wind.pkl','wb'))
-
-
-# pickle.dump(regressor, open('model.pkl','wb'))
-# pickle.dump(regressor1, open('model1.pkl','wb'))
-
-# # Loading model to compare the results
-# model = pickle.load(open('model.pkl','rb'))
-# model1 = pickle.load(open('model1.pkl','rb'))
-# print(model.predict([[1.8]]))
 
 
 

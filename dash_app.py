@@ -1,7 +1,6 @@
 import base64
 import datetime
 import io
-
 import dash
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
@@ -40,32 +39,9 @@ app.layout = html.Div([
         },
         # Allow multiple files to be uploaded
         multiple=True
-    ),
+    ),dcc.Graph(id='Mygraph'),
     html.Div(id='output-data-upload'),
-],style={'width':'70%','margin-left':'auto','margin-right':'auto'})
-
-# app.layout = html.Div([
-#     dcc.Upload(
-#         id='upload-data',
-#         children=html.Div([
-#             'Drag and Drop or ',
-#             html.A('Select Maintenance File(s)')
-#         ]),
-#         style={
-#             'width': '100%',
-#             'height': '60px',
-#             'lineHeight': '60px',
-#             'borderWidth': '1px',
-#             'borderStyle': 'dashed',
-#             'borderRadius': '5px',
-#             'textAlign': 'center',
-#             'margin': '10px'
-#         },
-#         # Allow multiple files to be uploaded
-#         multiple=True
-#     )
-#     html.Div(id='output-data-upload'),
-# ]
+],style={'width':'40%','margin-left':'auto','margin-right':'auto'})
 
 
 def parse_contents(contents, filename, date):
@@ -83,20 +59,23 @@ def parse_contents(contents, filename, date):
             prediction_sol = model.predict(sol_data)
             prediction_wind = model1.predict(wind_data)
 
-            sol_data["predicted_output"]=pd.Series(prediction_sol)
-            wind_data["predicted_output"]=pd.Series(prediction_wind)
+            sol_data["predicted_output(MW)"]=pd.Series(prediction_sol)
+            wind_data["predicted_output(MW)"]=pd.Series(prediction_wind)
 
             maint=df.rename(columns={"Date Of Month":"Day"})
 
             df_sol_final=pd.merge(sol_data, maint,how='left').fillna(100)
-            df_sol_final['predicted_output']=(df_sol_final['Capacity Available']/100)*df_sol_final['predicted_output']
+            df_sol_final['predicted_output(MW)']=(df_sol_final['Capacity Available']/100)*df_sol_final['predicted_output(MW)']
 
             df_wind_final=pd.merge(wind_data, maint,how='left').fillna(100)#left_on='Day',right_on='Day')
-            df_wind_final['predicted_output']=(df_wind_final['Capacity Available']/100)*df_wind_final['predicted_output']
+            df_wind_final['predicted_output(MW)']=(df_wind_final['Capacity Available']/100)*df_wind_final['predicted_output(MW)']
             
                         
-            df_sol_final=df_sol_final[['Month','Day','predicted_output']]
-            df_wind_final=df_wind_final[['Month','Day','predicted_output']]
+            df_sol_final=df_sol_final[['Month','Day','predicted_output(MW)']]
+            df_wind_final=df_wind_final[['Month','Day','predicted_output(MW)']]
+
+            df_sol_final['predicted_output(MW)']=round(df_sol_final['predicted_output(MW)'],2)#.map('{:,.2f}MW'.format)
+            df_wind_final['predicted_output(MW)']=round(df_wind_final['predicted_output(MW)'],2)#.map('{:,.2f}MW'.format)
 
         elif 'xls' in filename:
             # Assume that the user uploaded an excel file
@@ -108,16 +87,32 @@ def parse_contents(contents, filename, date):
         ])
 
     return html.Div([
-        html.H5('Predictions Based on Maintenace Schedule'),
-        html.H6(datetime.date.fromtimestamp(date)),
+        html.H5('Solar Predictions Based on Maintenace Schedule'),
+        # html.H6(datetime.date.fromtimestamp(date)),
 
         dash_table.DataTable(
             data=df_sol_final.to_dict('records'),
-            columns=[{'name': i, 'id': i} for i in df_sol_final.columns]
+            columns=[{'name': i, 'id': i} for i in df_sol_final.columns],
+             style_header={'backgroundColor': 'rgb(30, 30, 30)'},
+             style_cell={
+        'backgroundColor': 'rgb(50, 50, 50)',
+        'color': 'white'
+    },
         ),
 
-        html.Hr(),  # horizontal line
+        html.Hr(),    html.H5('Wind Predictions Based on Maintenace Schedule'), # horizontal line
 
+        dash_table.DataTable(
+            data=df_wind_final.to_dict('records'),
+            columns=[{'name': i, 'id': i} for i in df_wind_final.columns],
+             style_header={'backgroundColor': 'rgb(30, 30, 30)'},
+             style_cell={
+        'backgroundColor': 'rgb(50, 50, 50)',
+        'color': 'white'
+    },
+        ),
+        
+        html.Hr(), 
         # For debugging, display the raw contents provided by the web browser
         html.Div('Raw Content'),
         html.Pre(contents[0:200] + '...', style={
@@ -125,6 +120,31 @@ def parse_contents(contents, filename, date):
             'wordBreak': 'break-all'
         })
     ])
+
+
+
+# @app.callback(Output('Mygraph', 'figure'),
+#             [
+#                 Input('upload-data', 'contents'),
+#                 Input('upload-data', 'filename')
+#             ])
+# def update_graph(contents, filename):
+#     fig = {
+#         'layout': go.Layout(
+#             plot_bgcolor=colors["graphBackground"],
+#             paper_bgcolor=colors["graphBackground"])
+#     }
+
+#     if contents:
+#         contents = contents[0]
+#         filename = filename[0]
+#         df = parse_data(contents, filename)
+#         df = df.set_index(df.columns[0])
+#         fig['data'] = df.iplot(asFigure=True, kind='scatter', mode='lines+markers', size=1)
+
+
+#     return fig
+
 
 
 @app.callback(Output('output-data-upload', 'children'),
