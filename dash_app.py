@@ -115,7 +115,7 @@ def update_graph(contents, filename):
 
         #Plot Line graph
         fig = px.line(df_sol_final, x=df_sol_final.index ,y="predicted_output(MW)",template="plotly_dark",
-        title="Malpas-Trenton Solar Farm Output 7 Day Forecast",
+        title="Malpas-Trenton Solar Farm Output 6 Day Forecast",
         labels={"index": "Day of Forecast"})
 
         dcc.Graph(figure=fig)
