@@ -6,6 +6,8 @@ def read_api():
     import requests
     import pandas as pd
     #Takes the url
+
+    
     url = "https://api.openweathermap.org/data/2.5/onecall?lat=-19.461907&lon=142.110216&exclude=[current,minutely,hourly]&appid=686a8268d2d60adfa1efd1b0f3d7ffe5"
     url1="https://api.openweathermap.org/data/2.5/onecall?lat=53.556563&lon=8.598084&exclude=[current,minutely,hourly]&appid=686a8268d2d60adfa1efd1b0f3d7ffe5"
 
