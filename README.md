@@ -24,4 +24,7 @@ There are three python Files:
   3.Run dash_app.py to to access the local host webpage,upload the maintenance file(solar_farm.csv), make predictions and display
   
   
+ NB:Note that the available weather data for the solar farm location was for 6 days rather than 7 days
+  
+  
   
